@@ -1,0 +1,27 @@
+body {
+    font-family: Arial, sans-serif;
+    background-image: url(../Images/Train.jpg);
+    background-size: 100%;
+}
+
+h2 {
+    color: #007bff;
+}
+
+footer {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    background-color: #25272a;
+    padding: 10px 0;
+}
+
+p{
+    color: darkgreen;
+}
+label{
+    color: red;
+}
+section{
+    background-color: none;
+}

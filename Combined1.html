@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Reservation System</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Initialize variables for tracking login attempts
+        let loginAttempts = 0;
+        const maxAttempts = 3;
+
+        // Function to show the selected section and hide others
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                section.style.display = 'none'; // Hide all sections
+            });
+            document.getElementById(sectionId).style.display = 'block'; // Show the selected section
+        }
+
+        // Function to validate the password according to the given criteria
+        function validatePassword(password) {
+            const specialCharPattern = /[!@#$%^&*(),.?":{}|<>]/g;
+            const numberPattern = /[0-9]/;
+
+            if (password.length < 8) {
+                return "Password must be at least 8 characters long.";
+            }
+            if (!specialCharPattern.test(password)) {
+                return "Password must contain at least one special character.";
+            }
+            if (!numberPattern.test(password)) {
+                return "Password must contain at least one number.";
+            }
+            if (/\s/.test(password)) {
+                return "Password must not contain spaces.";
+            }
+
+            return ""; // Valid password
+        }
+
+        // Function to validate the age during signup
+        function validateAge(age) {
+            if (age < 18) {
+                return "You must be at least 18 years old to sign up.";
+            }
+            return ""; // Valid age
+        }
+
+        // Function to handle signup
+        function handleSignup(event) {
+            event.preventDefault(); // Prevent form submission
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPwd').value;
+            const age = parseInt(document.getElementById('signupAge').value, 10);
+            const errorMessage = document.getElementById('signup-error-message');
+
+            const passwordError = validatePassword(password);
+            const ageError = validateAge(age);
+
+            if (passwordError) {
+                errorMessage.textContent = passwordError;
+                return false;
+            }
+
+            if (ageError) {
+                errorMessage.textContent = ageError;
+                return false;
+            }
+
+            // Store the user account in localStorage (simulated user database)
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userPassword', password);
+
+            errorMessage.textContent = "";
+            alert("Signup successful! You can now log in.");
+            showSection('login');
+        }
+
+        // Function to handle login
+        function handleLogin(event) {
+            event.preventDefault(); // Prevent form submission
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPwd').value;
+            const storedEmail = localStorage.getItem('userEmail');
+            const storedPassword = localStorage.getItem('userPassword');
+            const loginErrorMessage = document.getElementById('login-error-message');
+
+            if (loginAttempts >= maxAttempts) {
+                loginErrorMessage.textContent = "Maximum login attempts exceeded. Please try again later.";
+                return false;
+            }
+
+            const passwordError = validatePassword(password);
+            if (passwordError) {
+                loginErrorMessage.textContent = passwordError;
+                return false;
+            }
+
+            if (email === storedEmail && password === storedPassword) {
+                alert("Login successful!");
+                loginErrorMessage.textContent = ""; // Clear any error message
+                showSection('home');
+            } else {
+                loginAttempts++;
+                loginErrorMessage.textContent = `Invalid credentials. Remaining attempts: ${maxAttempts - loginAttempts}`;
+                if (loginAttempts >= maxAttempts) {
+                    alert("You have exceeded the maximum number of attempts.");
+                }
+            }
+        }
+
+        // Function to handle password reset (just a simulation for demo purposes)
+        function handleForgotPassword() {
+            const email = prompt("Enter your email to reset password:");
+            const storedEmail = localStorage.getItem('userEmail');
+
+            if (email === storedEmail) {
+                alert("A password reset link has been sent to your email.");
+            } else {
+                alert("Email not found.");
+            }
+        }
+    </script>
+</head>
+<body onload="showSection('home')">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Railway Reservation System</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="showSection('home')">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="showSection('login')">Login</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="showSection('signup')">Signup</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="showSection('search')">Search Trains</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="showSection('contact')">Contact Us</a></li>
+                <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="showSection('about')">About Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="container mt-5">
+        <h2>Railway Reservation System</h2>
+        <p>Find trains according to your journey date and stations.</p>
+    </section>
+
+    <!-- Login Section -->
+    <section id="login" class="container mt-5" style="display: none;">
+        <h2>Login</h2>
+        <form class="mt-4" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="loginEmail">Email:</label>
+                <input type="email" class="form-control" id="loginEmail" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPwd">Password:</label>
+                <input type="password" class="form-control" id="loginPwd" placeholder="Enter password" required>
+            </div>
+            <div id="login-error-message" style="color: red;"></div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <p><a href="javascript:void(0)" onclick="handleForgotPassword()">Forgot Password?</a></p>
+    </section>
+
+    <!-- Signup Section -->
+    <section id="signup" class="container mt-5" style="display: none;">
+        <h2>Signup</h2>
+        <form class="mt-4" onsubmit="handleSignup(event)">
+            <div class="form-group">
+                <label for="signupEmail">Email:</label>
+                <input type="email" class="form-control" id="signupEmail" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+                <label for="signupPwd">Password:</label>
+                <input type="password" class="form-control" id="signupPwd" placeholder="Enter password" required>
+            </div>
+            <div class="form-group">
+                <label for="signupAge">Age:</label>
+                <input type="number" class="form-control" id="signupAge" placeholder="Enter your age" required>
+            </div>
+            <div id="signup-error-message" style="color: red;"></div>
+            <button type="submit" class="btn btn-primary">Signup</button>
+        </form>
+    </section>
+
+    <!-- Search Trains Section -->
+    <section id="search" class="container mt-5" style="display: none;">
+        <h2>Search Train Details</h2>
+        <form class="mt-4">
+            <div class="form-group">
+                <label for="fromStation">From Station:</label>
+                <input type="text" class="form-control" id="fromStation" placeholder="Enter from station" required>
+            </div>
+            <div class="form-group">
+                <label for="toStation">To Station:</label>
+                <input type="text" class="form-control" id="toStation" placeholder="Enter to station" required>
+            </div>
+            <div class="form-group">
+                <label for="journeyDate">Date of Journey:</label>
+                <input type="date" class="form-control" id="journeyDate" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </section>
+
+    <!-- Contact Us Section -->
+    <section id="contact" class="container mt-5" style="display: none;">
+        <h2>Contact Us</h2>
+        <form class="mt-4">
+            <div class="form-group">
+                <label for="contactName">Name:</label>
+                <input type="text" class="form-control" id="contactName" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+                <label for="contactEmail">Email:</label>
+                <input type="email" class="form-control" id="contactEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="contactMessage">Message:</label>
+                <textarea class="form-control" id="contactMessage" placeholder="Your message" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="container mt-5" style="display: none;">
+        <h2>About Us</h2>
+        <p>A Railway Reservation System Web Page is an online platform designed to streamline the process of booking train tickets and managing travel logistics for passengers. The system typically begins with a user-friendly registration and login feature, allowing passengers to create accounts and log in securely, with age verification to ensure users are at least 18 years old.
+
+            Once logged in, users can easily search for trains by entering their departure and arrival stations along with the date of their journey. The search results display available train options, enabling passengers to select their preferred service based on time and availability. After selecting a train, users can book tickets, choose their class (such as Sleeper, AC, or General), and enter passenger details for multiple travelers.
+            
+            Upon successful booking, passengers receive a confirmation that includes a unique Passenger Name Record (PNR) number, which serves as a reference for their travel plans. The system also allows users to manage their bookings, offering options to cancel or modify reservations with clear information on cancellation policies.</p>
+    </section>
+</body>
+</html>
